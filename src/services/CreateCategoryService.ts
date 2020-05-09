@@ -5,7 +5,15 @@ class CreateCategoryService {
   public async execute(title: string): Promise<Category> {
     const categoriesRepository = getRepository(Category);
 
-    const category = categoriesRepository.create({ title });
+    let category = await categoriesRepository.findOne({
+      where: { title },
+    });
+
+    if (category) {
+      return category;
+    }
+
+    category = categoriesRepository.create({ title });
 
     await categoriesRepository.save(category);
 

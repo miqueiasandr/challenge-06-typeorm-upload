@@ -22,31 +22,20 @@ class CreateTransactionService {
   }: Request): Promise<Transaction> {
     const transactionsRepository = getCustomRepository(TransactionsRepository);
     const categoriesRepository = getRepository(Category);
+    const createCategory = new CreateCategoryService();
 
     const { total } = await transactionsRepository.getBalance();
 
     if (type === 'outcome' && value > total) {
-      throw new AppError('You do not have enougth money', 401);
+      throw new AppError('You do not have enougth money');
     }
 
-    const checkCategoryExists = await categoriesRepository.findOne({
+    let checkCategoryExists = await categoriesRepository.findOne({
       where: { title: category },
     });
 
     if (!checkCategoryExists) {
-      const createCategory = new CreateCategoryService();
-      const newCategory = await createCategory.execute(category);
-
-      const transaction = transactionsRepository.create({
-        title,
-        type,
-        value,
-        category: newCategory,
-      });
-
-      await transactionsRepository.save(transaction);
-
-      return transaction;
+      checkCategoryExists = await createCategory.execute(category);
     }
 
     const transaction = transactionsRepository.create({
