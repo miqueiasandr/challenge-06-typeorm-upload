@@ -27,7 +27,7 @@ class CreateTransactionService {
     const { total } = await transactionsRepository.getBalance();
 
     if (type === 'outcome' && value > total) {
-      throw new AppError('You do not have enougth money');
+      throw new AppError('You do not have enougth money!');
     }
 
     let checkCategoryExists = await categoriesRepository.findOne({
